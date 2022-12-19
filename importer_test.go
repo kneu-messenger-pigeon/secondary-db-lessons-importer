@@ -24,8 +24,7 @@ func TestImporterExecute(t *testing.T) {
 	var endDatetime time.Time
 	var out bytes.Buffer
 	var event events.LessonEvent
-
-	matchContext := mock.MatchedBy(func(ctx context.Context) bool { return true })
+	var matchContext = mock.MatchedBy(func(ctx context.Context) bool { return true })
 
 	t.Run("valid lessons", func(t *testing.T) {
 		startDatetime = time.Date(2023, 3, 5, 4, 0, 0, 0, time.Local)
