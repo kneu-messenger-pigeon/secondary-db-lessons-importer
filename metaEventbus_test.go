@@ -26,6 +26,7 @@ func TestSendSecondaryDbLessonProcessedEventName(t *testing.T) {
 	payload, _ := json.Marshal(events.SecondaryDbLessonProcessedEvent{
 		CurrentSecondaryDatabaseDatetime:  currentDatetime,
 		PreviousSecondaryDatabaseDatetime: previousDatetime,
+		Year:                              previousDatetime.Year(),
 	})
 
 	expectedMessage := kafka.Message{

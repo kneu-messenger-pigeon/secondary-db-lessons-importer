@@ -22,6 +22,7 @@ var expectedColumns = []string{"ID", "NUM_PREDM", "DATEZAN", "NUM_VARZAN", "HALF
 func TestImporterExecute(t *testing.T) {
 	var startDatetime time.Time
 	var endDatetime time.Time
+	var year = 2030
 	var out bytes.Buffer
 	var event events.LessonEvent
 	var matchContext = mock.MatchedBy(func(ctx context.Context) bool { return true })
@@ -45,6 +46,7 @@ func TestImporterExecute(t *testing.T) {
 				DisciplineId: 99,
 				TypeId:       uint8(rand.Intn(10) + 1),
 				Date:         time.Date(2022, 12, 20, 14, 36, 0, 0, time.Local),
+				Year:         year,
 				Semester:     uint8(rand.Intn(2) + 1),
 				IsDeleted:    i%7 == 3,
 			}
@@ -101,7 +103,7 @@ func TestImporterExecute(t *testing.T) {
 			writeThreshold: chunkSize,
 		}
 
-		err = importer.execute(startDatetime, endDatetime)
+		err = importer.execute(startDatetime, endDatetime, year)
 
 		assert.NoError(t, err)
 
@@ -141,7 +143,7 @@ func TestImporterExecute(t *testing.T) {
 			writeThreshold: 3,
 		}
 
-		err = importer.execute(startDatetime, endDatetime)
+		err = importer.execute(startDatetime, endDatetime, year)
 
 		assert.Error(t, err)
 		assert.Equal(t, expectedError, err)
@@ -198,7 +200,7 @@ func TestImporterExecute(t *testing.T) {
 			writeThreshold: 3,
 		}
 
-		err = importer.execute(startDatetime, endDatetime)
+		err = importer.execute(startDatetime, endDatetime, year)
 
 		assert.Error(t, err)
 		assert.ErrorContains(t, err, "sql: Scan error on column index ")
@@ -248,7 +250,7 @@ func TestImporterExecute(t *testing.T) {
 			writeThreshold: 1,
 		}
 
-		err = importer.execute(startDatetime, endDatetime)
+		err = importer.execute(startDatetime, endDatetime, year)
 
 		assert.Error(t, err)
 		assert.Equal(t, expectedError, err)
@@ -273,7 +275,7 @@ func TestImporterExecute(t *testing.T) {
 			writeThreshold: 3,
 		}
 
-		err := importer.execute(startDatetime, endDatetime)
+		err := importer.execute(startDatetime, endDatetime, year)
 
 		assert.Error(t, err)
 		assert.Equal(t, expectedErr, err)

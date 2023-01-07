@@ -19,6 +19,7 @@ func (metaEventbus MetaEventbus) sendSecondaryDbLessonProcessedEventName(originE
 	event := events.SecondaryDbLessonProcessedEvent{
 		CurrentSecondaryDatabaseDatetime:  originEvent.CurrentSecondaryDatabaseDatetime,
 		PreviousSecondaryDatabaseDatetime: originEvent.PreviousSecondaryDatabaseDatetime,
+		Year:                              originEvent.Year,
 	}
 	payload, _ := json.Marshal(event)
 

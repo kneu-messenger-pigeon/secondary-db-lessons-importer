@@ -15,7 +15,7 @@ const LessonQuery = `SELECT ID, NUM_PREDM, DATEZAN, NUM_VARZAN, HALF, FSTATUS = 
 	    FROM T_PRJURN WHERE REGDATE BETWEEN ? AND ? ORDER BY ID DESC`
 
 type ImporterInterface interface {
-	execute(startDatetime time.Time, endDatetime time.Time) error
+	execute(startDatetime time.Time, endDatetime time.Time, year int) error
 }
 
 type LessonsImporter struct {
@@ -25,7 +25,7 @@ type LessonsImporter struct {
 	writeThreshold int
 }
 
-func (importer LessonsImporter) execute(startDatetime time.Time, endDatetime time.Time) (err error) {
+func (importer LessonsImporter) execute(startDatetime time.Time, endDatetime time.Time, year int) (err error) {
 	if err = importer.db.Ping(); err != nil {
 		return
 	}
@@ -68,6 +68,7 @@ func (importer LessonsImporter) execute(startDatetime time.Time, endDatetime tim
 		i++
 		err = rows.Scan(&event.Id, &event.DisciplineId, &event.Date, &event.TypeId, &event.Semester, &event.IsDeleted)
 		if err == nil {
+			event.Year = year
 			payload, _ := json.Marshal(event)
 			messages = append(messages, kafka.Message{
 				Key:   []byte(events.LessonEventName),

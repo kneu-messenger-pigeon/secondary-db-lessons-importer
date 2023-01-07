@@ -45,7 +45,7 @@ func TestEventLoopExecute(t *testing.T) {
 		reader.On("CommitMessages", matchContext, message).Return(nil)
 
 		importer := NewMockImporterInterface(t)
-		importer.On("execute", expectedStartDatetime, expectedEndDatetime).Return(nil)
+		importer.On("execute", expectedStartDatetime, expectedEndDatetime, expectedEndDatetime.Year()).Return(nil)
 
 		eventLoop := EventLoop{
 			out:          &out,
@@ -73,7 +73,7 @@ func TestEventLoopExecute(t *testing.T) {
 		reader.On("CommitMessages", matchContext, message).Return(expectedError)
 
 		importer := NewMockImporterInterface(t)
-		importer.On("execute", expectedStartDatetime, expectedEndDatetime).Return(nil)
+		importer.On("execute", expectedStartDatetime, expectedEndDatetime, expectedEndDatetime.Year()).Return(nil)
 
 		eventLoop := EventLoop{
 			out:          &out,
@@ -102,7 +102,7 @@ func TestEventLoopExecute(t *testing.T) {
 		reader.On("FetchMessage", matchContext).Return(message, nil).Once()
 
 		importer := NewMockImporterInterface(t)
-		importer.On("execute", expectedStartDatetime, expectedEndDatetime).Return(expectedError)
+		importer.On("execute", expectedStartDatetime, expectedEndDatetime, expectedEndDatetime.Year()).Return(expectedError)
 
 		eventLoop := EventLoop{
 			out:          &out,
