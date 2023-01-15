@@ -57,3 +57,49 @@ func TestSendSecondaryDbLessonProcessedEventName(t *testing.T) {
 		writer.AssertNumberOfCalls(t, "WriteMessages", 1)
 	})
 }
+
+func TestSendLessonTypesList(t *testing.T) {
+	lessonTypesList := []events.LessonType{
+		{
+			Id:        30,
+			ShortName: "Лек",
+			LongName:  "Лекція",
+		},
+	}
+
+	expectedError := errors.New("some error")
+	expectedYear := 2045
+
+	payload, _ := json.Marshal(events.LessonTypesList{
+		Year: expectedYear,
+		List: lessonTypesList,
+	})
+
+	expectedMessage := kafka.Message{
+		Key:   []byte(events.LessonTypesListName),
+		Value: payload,
+	}
+
+	t.Run("Success send", func(t *testing.T) {
+		writer := events.NewMockWriterInterface(t)
+		writer.On("WriteMessages", context.Background(), expectedMessage).Return(nil)
+
+		eventbus := MetaEventbus{writer: writer}
+		err := eventbus.sendLessonTypesList(lessonTypesList, expectedYear)
+
+		assert.NoErrorf(t, err, "Not expect for error")
+		writer.AssertNumberOfCalls(t, "WriteMessages", 1)
+	})
+
+	t.Run("Failed send", func(t *testing.T) {
+		writer := events.NewMockWriterInterface(t)
+		writer.On("WriteMessages", context.Background(), expectedMessage).Return(expectedError)
+
+		eventbus := MetaEventbus{writer: writer}
+		err := eventbus.sendLessonTypesList(lessonTypesList, expectedYear)
+
+		assert.Errorf(t, err, "Expect for error")
+		assert.Equal(t, expectedError, err, "Got unexpected error")
+		writer.AssertNumberOfCalls(t, "WriteMessages", 1)
+	})
+}

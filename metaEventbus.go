@@ -9,6 +9,7 @@ import (
 
 type MetaEventbusInterface interface {
 	sendSecondaryDbLessonProcessedEventName(originEvent events.SecondaryDbLoadedEvent) error
+	sendLessonTypesList(list []events.LessonType, year int) error
 }
 
 type MetaEventbus struct {
@@ -26,6 +27,21 @@ func (metaEventbus MetaEventbus) sendSecondaryDbLessonProcessedEventName(originE
 	return metaEventbus.writer.WriteMessages(context.Background(),
 		kafka.Message{
 			Key:   []byte(events.SecondaryDbLessonProcessedEventName),
+			Value: payload,
+		},
+	)
+}
+
+func (metaEventbus MetaEventbus) sendLessonTypesList(list []events.LessonType, year int) error {
+	event := events.LessonTypesList{
+		Year: year,
+		List: list,
+	}
+	payload, _ := json.Marshal(event)
+
+	return metaEventbus.writer.WriteMessages(context.Background(),
+		kafka.Message{
+			Key:   []byte(events.LessonTypesListName),
 			Value: payload,
 		},
 	)

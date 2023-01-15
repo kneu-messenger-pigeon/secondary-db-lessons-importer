@@ -14,8 +14,11 @@ import (
 const LessonQuery = `SELECT ID, NUM_PREDM, DATEZAN, NUM_VARZAN, HALF, FSTATUS = 0 as isDeleted
 	    FROM T_PRJURN WHERE REGDATE BETWEEN ? AND ? ORDER BY ID DESC`
 
+const LessonTypesQuery = `SELECT ID, SHIRTNAME, LONGNAME FROM T_VARZAN`
+
 type ImporterInterface interface {
 	execute(startDatetime time.Time, endDatetime time.Time, year int) error
+	importLessonTypes() ([]events.LessonType, error)
 }
 
 type LessonsImporter struct {
@@ -25,7 +28,7 @@ type LessonsImporter struct {
 	writeThreshold int
 }
 
-func (importer LessonsImporter) execute(startDatetime time.Time, endDatetime time.Time, year int) (err error) {
+func (importer *LessonsImporter) execute(startDatetime time.Time, endDatetime time.Time, year int) (err error) {
 	if err = importer.db.Ping(); err != nil {
 		return
 	}
@@ -82,5 +85,19 @@ func (importer LessonsImporter) execute(startDatetime time.Time, endDatetime tim
 		i, err, int(time.Now().Sub(startedAt).Seconds()),
 	)
 
+	return
+}
+
+func (importer *LessonsImporter) importLessonTypes() (list []events.LessonType, err error) {
+	rows, err := importer.db.Query(LessonTypesQuery)
+	if rows != nil {
+		defer rows.Close()
+	}
+
+	var lessonType events.LessonType
+	for err == nil && rows.Next() {
+		err = rows.Scan(&lessonType.Id, &lessonType.ShortName, &lessonType.LongName)
+		list = append(list, lessonType)
+	}
 	return
 }

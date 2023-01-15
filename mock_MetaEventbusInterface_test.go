@@ -12,6 +12,20 @@ type MockMetaEventbusInterface struct {
 	mock.Mock
 }
 
+// sendLessonTypesList provides a mock function with given fields: list, year
+func (_m *MockMetaEventbusInterface) sendLessonTypesList(list []events.LessonType, year int) error {
+	ret := _m.Called(list, year)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func([]events.LessonType, int) error); ok {
+		r0 = rf(list, year)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // sendSecondaryDbLessonProcessedEventName provides a mock function with given fields: originEvent
 func (_m *MockMetaEventbusInterface) sendSecondaryDbLessonProcessedEventName(originEvent events.SecondaryDbLoadedEvent) error {
 	ret := _m.Called(originEvent)

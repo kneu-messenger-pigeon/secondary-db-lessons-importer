@@ -22,11 +22,12 @@ func TestEventLoopExecute(t *testing.T) {
 
 	expectedStartDatetime := time.Date(2023, 4, 10, 4, 0, 0, 0, time.UTC)
 	expectedEndDatetime := time.Date(2023, 4, 11, 4, 0, 0, 0, time.UTC)
+	expectedYear := expectedEndDatetime.Year()
 
 	event := events.SecondaryDbLoadedEvent{
 		PreviousSecondaryDatabaseDatetime: expectedStartDatetime,
 		CurrentSecondaryDatabaseDatetime:  expectedEndDatetime,
-		Year:                              expectedEndDatetime.Year(),
+		Year:                              expectedYear,
 	}
 
 	payload, _ := json.Marshal(event)
@@ -36,8 +37,17 @@ func TestEventLoopExecute(t *testing.T) {
 	}
 
 	t.Run("success process one valid message", func(t *testing.T) {
+		lessonTypesList := []events.LessonType{
+			{
+				Id:        30,
+				ShortName: "Лек",
+				LongName:  "Лекція",
+			},
+		}
+
 		metaEventbus := NewMockMetaEventbusInterface(t)
 		metaEventbus.On("sendSecondaryDbLessonProcessedEventName", event).Return(nil)
+		metaEventbus.On("sendLessonTypesList", lessonTypesList, expectedYear).Return(nil)
 
 		reader := events.NewMockReaderInterface(t)
 		reader.On("FetchMessage", matchContext).Return(message, nil).Once()
@@ -45,7 +55,8 @@ func TestEventLoopExecute(t *testing.T) {
 		reader.On("CommitMessages", matchContext, message).Return(nil)
 
 		importer := NewMockImporterInterface(t)
-		importer.On("execute", expectedStartDatetime, expectedEndDatetime, expectedEndDatetime.Year()).Return(nil)
+		importer.On("execute", expectedStartDatetime, expectedEndDatetime, expectedYear).Return(nil)
+		importer.On("importLessonTypes").Return(lessonTypesList, nil)
 
 		eventLoop := EventLoop{
 			out:          &out,
@@ -65,15 +76,19 @@ func TestEventLoopExecute(t *testing.T) {
 	})
 
 	t.Run("process one valid message with error on commit", func(t *testing.T) {
+		lessonTypesList := make([]events.LessonType, 1)
+
 		metaEventbus := NewMockMetaEventbusInterface(t)
 		metaEventbus.On("sendSecondaryDbLessonProcessedEventName", event).Return(nil)
+		metaEventbus.On("sendLessonTypesList", lessonTypesList, expectedYear).Return(nil)
 
 		reader := events.NewMockReaderInterface(t)
 		reader.On("FetchMessage", matchContext).Return(message, nil).Once()
 		reader.On("CommitMessages", matchContext, message).Return(expectedError)
 
 		importer := NewMockImporterInterface(t)
-		importer.On("execute", expectedStartDatetime, expectedEndDatetime, expectedEndDatetime.Year()).Return(nil)
+		importer.On("execute", expectedStartDatetime, expectedEndDatetime, expectedYear).Return(nil)
+		importer.On("importLessonTypes").Return(lessonTypesList, nil)
 
 		eventLoop := EventLoop{
 			out:          &out,
@@ -96,13 +111,17 @@ func TestEventLoopExecute(t *testing.T) {
 	})
 
 	t.Run("process one valid message with error on importer execute", func(t *testing.T) {
+		lessonTypesList := make([]events.LessonType, 1)
+
 		metaEventbus := NewMockMetaEventbusInterface(t)
+		metaEventbus.On("sendLessonTypesList", lessonTypesList, expectedYear).Return(nil)
 
 		reader := events.NewMockReaderInterface(t)
 		reader.On("FetchMessage", matchContext).Return(message, nil).Once()
 
 		importer := NewMockImporterInterface(t)
-		importer.On("execute", expectedStartDatetime, expectedEndDatetime, expectedEndDatetime.Year()).Return(expectedError)
+		importer.On("execute", expectedStartDatetime, expectedEndDatetime, expectedYear).Return(expectedError)
+		importer.On("importLessonTypes").Return(lessonTypesList, nil)
 
 		eventLoop := EventLoop{
 			out:          &out,

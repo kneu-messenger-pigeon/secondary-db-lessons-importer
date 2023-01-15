@@ -24,6 +24,8 @@ func (eventLoop EventLoop) execute() (err error) {
 
 	var event events.SecondaryDbLoadedEvent
 	var m kafka.Message
+	var lessonTypesList []events.LessonType
+
 	for err == nil {
 		m, err = eventLoop.reader.FetchMessage(ctx)
 
@@ -35,10 +37,18 @@ func (eventLoop EventLoop) execute() (err error) {
 				event.CurrentSecondaryDatabaseDatetime.Format(dateFormat),
 			)
 
-			err = eventLoop.importer.execute(
-				event.PreviousSecondaryDatabaseDatetime, event.CurrentSecondaryDatabaseDatetime,
-				event.Year,
-			)
+			lessonTypesList, err = eventLoop.importer.importLessonTypes()
+			if err == nil && len(lessonTypesList) > 0 {
+				err = eventLoop.metaEventbus.sendLessonTypesList(lessonTypesList, event.Year)
+			}
+
+			if err == nil {
+				err = eventLoop.importer.execute(
+					event.PreviousSecondaryDatabaseDatetime, event.CurrentSecondaryDatabaseDatetime,
+					event.Year,
+				)
+			}
+
 			fmt.Fprintf(
 				eventLoop.out, "Finish processing %s %s - %s. Error: %v \n", string(m.Key),
 				event.PreviousSecondaryDatabaseDatetime.Format(dateFormat),

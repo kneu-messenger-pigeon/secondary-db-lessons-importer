@@ -282,3 +282,53 @@ func TestImporterExecute(t *testing.T) {
 	})
 
 }
+
+func TestImportLessonsType(t *testing.T) {
+	columns := []string{"ID", "NUM_PREDM", "DATEZAN"}
+	t.Run("valid lesson types", func(t *testing.T) {
+		var out bytes.Buffer
+
+		// Start  Init DB Mock
+		db, dbMock, _ := sqlmock.New()
+
+		importer := LessonsImporter{
+			out: &out,
+			db:  db,
+		}
+
+		expectedLessonType := events.LessonType{
+			Id:        65,
+			ShortName: "Лек",
+			LongName:  "Лекція",
+		}
+
+		rows := sqlmock.NewRows(columns).AddRow(
+			expectedLessonType.Id, expectedLessonType.ShortName, expectedLessonType.LongName,
+		)
+
+		dbMock.ExpectQuery(regexp.QuoteMeta(LessonTypesQuery)).WillReturnRows(rows)
+
+		actualLessonTypes, actualErr := importer.importLessonTypes()
+
+		assert.Equal(t, []events.LessonType{expectedLessonType}, actualLessonTypes)
+		assert.NoError(t, actualErr)
+	})
+
+	t.Run("error lesson types", func(t *testing.T) {
+		var out bytes.Buffer
+		expectedError := errors.New("expected test error")
+		// Start  Init DB Mock
+		db, dbMock, _ := sqlmock.New()
+		importer := LessonsImporter{
+			out: &out,
+			db:  db,
+		}
+
+		dbMock.ExpectQuery(regexp.QuoteMeta(LessonTypesQuery)).WillReturnError(expectedError)
+		actualLessonTypes, actualErr := importer.importLessonTypes()
+
+		assert.Nil(t, actualLessonTypes)
+		assert.Error(t, actualErr)
+		assert.Equal(t, expectedError, actualErr)
+	})
+}
