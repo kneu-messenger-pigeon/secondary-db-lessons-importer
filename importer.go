@@ -11,8 +11,9 @@ import (
 	"time"
 )
 
-const LessonQuery = `SELECT ID, NUM_PREDM, DATEZAN, NUM_VARZAN, HALF, FSTATUS = 0 as isDeleted
-	    FROM T_PRJURN WHERE REGDATE BETWEEN ? AND ? ORDER BY ID DESC`
+const LessonQuery = `SELECT ID, NUM_PREDM, DATEZAN, NUM_VARZAN, HALF,
+    (case FSTATUS when 0 then 1 else 0 end) as isDeleted
+FROM T_PRJURN WHERE REGDATE BETWEEN ? AND ? ORDER BY ID DESC`
 
 const LessonTypesQuery = `SELECT ID, SHIRTNAME, LONGNAME FROM T_VARZAN`
 
