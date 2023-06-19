@@ -40,7 +40,7 @@ func (importer *LessonsImporter) execute(startDatetime time.Time, endDatetime ti
 	)
 
 	startedAt := time.Now()
-	fmt.Fprintf(importer.out, "Start import lessons: ")
+	fmt.Fprintf(importer.out, "Start import lessons: \n")
 	rows, err := importer.db.Query(
 		LessonQuery,
 		startDatetime.Format(dateFormat),
