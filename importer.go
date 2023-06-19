@@ -40,6 +40,7 @@ func (importer *LessonsImporter) execute(startDatetime time.Time, endDatetime ti
 	)
 
 	startedAt := time.Now()
+	fmt.Fprintf(importer.out, "Start import lessons: ")
 	rows, err := importer.db.Query(
 		LessonQuery,
 		startDatetime.Format(dateFormat),
@@ -67,7 +68,6 @@ func (importer *LessonsImporter) execute(startDatetime time.Time, endDatetime ti
 
 	var event events.LessonEvent
 	i := 0
-	fmt.Fprintf(importer.out, "Start import lessons: ")
 	for rows.Next() && writeMessages(importer.writeThreshold) {
 		i++
 		err = rows.Scan(&event.Id, &event.DisciplineId, &event.Date, &event.TypeId, &event.Semester, &event.IsDeleted)
