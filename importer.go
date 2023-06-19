@@ -82,7 +82,7 @@ func (importer *LessonsImporter) execute(startDatetime time.Time, endDatetime ti
 	}
 	writeMessages(0)
 	fmt.Fprintf(
-		importer.out, " finished. Send %d lessons. Error: %v. Done in %d seconds \n",
+		importer.out, " finished.\n Send %d lessons. Error: %v. Done in %d seconds \n",
 		i, err, int(time.Now().Sub(startedAt).Seconds()),
 	)
 
