@@ -7,6 +7,7 @@ import (
 	"errors"
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/kneu-messenger-pigeon/events"
+	"github.com/kneu-messenger-pigeon/events/mocks"
 	"github.com/segmentio/kafka-go"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -65,7 +66,7 @@ func TestImporterExecute(t *testing.T) {
 		// End Init DB Mock
 
 		// start Init Writer Mock and Expectation
-		writer := events.NewMockWriterInterface(t)
+		writer := mocks.NewWriterInterface(t)
 
 		chunkSize := 3
 
@@ -133,7 +134,7 @@ func TestImporterExecute(t *testing.T) {
 		// End Init DB Mock
 
 		// start Init Writer Mock and Expectation
-		writer := events.NewMockWriterInterface(t)
+		writer := mocks.NewWriterInterface(t)
 		// End Init Writer Mock and Expectation
 
 		importer := LessonsImporter{
@@ -176,7 +177,7 @@ func TestImporterExecute(t *testing.T) {
 		// End Init DB Mock
 
 		// start Init Writer Mock and Expectation
-		writer := events.NewMockWriterInterface(t)
+		writer := mocks.NewWriterInterface(t)
 
 		writer.On(
 			"WriteMessages",
@@ -234,7 +235,7 @@ func TestImporterExecute(t *testing.T) {
 		// End Init DB Mock
 
 		// start Init Writer Mock and Expectation
-		writer := events.NewMockWriterInterface(t)
+		writer := mocks.NewWriterInterface(t)
 
 		writer.On(
 			"WriteMessages",
