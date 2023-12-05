@@ -31,7 +31,7 @@ func TestImporterExecute(t *testing.T) {
 	t.Run("valid lessons", func(t *testing.T) {
 		startDatetime = time.Date(2023, 3, 5, 4, 0, 0, 0, time.Local)
 		endDatetime = time.Date(2023, 3, 5, 4, 0, 0, 0, time.Local)
-		expectedSqlStartDatetime := time.Date(2023, 3, 5, 0, 0, 0, 0, time.Local)
+		expectedSqlStartDatetime := time.Date(2023, 3, 5-AdditionalDateRangeInDays, 0, 0, 0, 0, time.Local)
 
 		// Start  Init DB Mock
 		db, dbMock, err := sqlmock.New()
@@ -118,7 +118,7 @@ func TestImporterExecute(t *testing.T) {
 	t.Run("sql error", func(t *testing.T) {
 		startDatetime = time.Date(2023, 3, 5, 4, 0, 0, 0, time.Local)
 		endDatetime = time.Date(2023, 3, 5, 4, 0, 0, 0, time.Local)
-		expectedSqlStartDatetime := time.Date(2023, 3, 5, 0, 0, 0, 0, time.Local)
+		expectedSqlStartDatetime := time.Date(2023, 3, 5-AdditionalDateRangeInDays, 0, 0, 0, 0, time.Local)
 
 		expectedError := errors.New("expected test error")
 
@@ -157,6 +157,7 @@ func TestImporterExecute(t *testing.T) {
 	t.Run("row error", func(t *testing.T) {
 		startDatetime = time.Date(2023, 3, 5, 0, 0, 0, 0, time.Local)
 		endDatetime = time.Date(2023, 3, 5, 4, 0, 0, 0, time.Local)
+		expectedSqlStartDatetime := time.Date(2023, 3, 5-AdditionalDateRangeInDays, 0, 0, 0, 0, time.Local)
 
 		// Start  Init DB Mock
 		db, dbMock, err := sqlmock.New()
@@ -172,7 +173,7 @@ func TestImporterExecute(t *testing.T) {
 		)
 
 		dbMock.ExpectQuery(regexp.QuoteMeta(LessonQuery)).WithArgs(
-			startDatetime.Format(dateFormat), endDatetime.Format(dateFormat),
+			expectedSqlStartDatetime.Format(dateFormat), endDatetime.Format(dateFormat),
 		).WillReturnRows(rows)
 		// End Init DB Mock
 
@@ -216,6 +217,7 @@ func TestImporterExecute(t *testing.T) {
 	t.Run("writer error", func(t *testing.T) {
 		startDatetime = time.Date(2023, 3, 5, 0, 0, 0, 0, time.Local)
 		endDatetime = time.Date(2023, 3, 5, 4, 0, 0, 0, time.Local)
+		expectedSqlStartDatetime := time.Date(2023, 3, 5-AdditionalDateRangeInDays, 0, 0, 0, 0, time.Local)
 		expectedError := errors.New("expected test error")
 
 		// Start  Init DB Mock
@@ -230,7 +232,7 @@ func TestImporterExecute(t *testing.T) {
 		)
 
 		dbMock.ExpectQuery(regexp.QuoteMeta(LessonQuery)).WithArgs(
-			startDatetime.Format(dateFormat), endDatetime.Format(dateFormat),
+			expectedSqlStartDatetime.Format(dateFormat), endDatetime.Format(dateFormat),
 		).WillReturnRows(rows)
 		// End Init DB Mock
 

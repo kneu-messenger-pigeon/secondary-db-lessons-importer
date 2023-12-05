@@ -17,6 +17,8 @@ FROM T_PRJURN WHERE REGDATE BETWEEN ? AND ? ORDER BY ID DESC`
 
 const LessonTypesQuery = `SELECT ID, SHIRTNAME, LONGNAME FROM T_VARZAN`
 
+const AdditionalDateRangeInDays = 2
+
 type ImporterInterface interface {
 	execute(startDatetime time.Time, endDatetime time.Time, year int) error
 	importLessonTypes() ([]events.LessonType, error)
@@ -35,7 +37,7 @@ func (importer *LessonsImporter) execute(startDatetime time.Time, endDatetime ti
 	}
 
 	startDatetime = time.Date(
-		startDatetime.Year(), startDatetime.Month(), startDatetime.Day(),
+		startDatetime.Year(), startDatetime.Month(), startDatetime.Day()-AdditionalDateRangeInDays,
 		0, 0, 0, 0, startDatetime.Location(),
 	)
 
